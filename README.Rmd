@@ -1,0 +1,27 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction to modelling, R and GIS training.
+## Vector Atlas
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+List of scripts for tutorials:
+
+- mot
+- hai
+- ba
+- bon
+- nam
+
