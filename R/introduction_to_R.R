@@ -103,7 +103,7 @@ sapply(list_1, class)
 list_2 <- list(
   location = "icipe",
   temperature_degrees_c = 25,
-  students = c("Cindy", "Dorcas", "Chelsea"),
+  team = c("Lorna", "Dorcas", "Cindy"),
   daytime = TRUE
 )
 
@@ -229,11 +229,63 @@ diamonds |>
     n = 35
   )
 
+# pipes are helpful and make working clearer!
+
 # exercise: live code the above in base R
 
 
-# pipes are helpful and make working clearer!
+## Indexing and accessing parts of objects
+
+mt <- mtcars |>
+  mutate(
+    model = rownames(mtcars)
+  ) |>
+  as_tibble() |>
+  select(
+    cyl,
+    gear,
+    hp,
+    qsec,
+    model
+  ) |>
+  nest(
+    sub_table = c(
+      model,
+      qsec,
+      hp
+    )
+  )
+
+mt
 
 
+mt$cyl
 
-# indexing and $ referring
+mt$sub_table
+
+# indexing is via row, column, and starts at 1
+
+mt[1,1]
+
+mt[1,]
+mt[,1]
+
+mtcars[2:3,4:5]
+
+# double brackets index list elements
+# data frames are a special type of list where each element has the same length
+mt[[1]]
+mt$cyl
+
+mt$sub_table[[1]]
+mt[[3]][[1]]
+mt[1,3]
+mt[1,3][[1]][[1]]
+
+mt[,"cyl"]
+
+list_2
+
+list_2$team
+list_2[[3]]
+list_2[[3]][[2]]
