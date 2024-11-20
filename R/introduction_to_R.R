@@ -3,7 +3,7 @@
 
 ###############################################
 #######
-####### Part 1: The basics
+####### Part 1: The basics and base
 #######
 ###############################################
 
@@ -39,16 +39,7 @@ new_object * 3
 # objects can be as simple as a number or much more complicated in structure
 
 mtcars
-
-library(tidyverse)
-
-mtcars |>
-  mutate(
-    model = rownames(mtcars),
-    xy = vs + am
-  ) |>
-  nest(data = c(xy, gear, model))
-
+LakeHuron
 
 # Objects can have a variety of structures and "classes"
 
@@ -101,6 +92,23 @@ class(5.11)
 sapply(c(2:4, 5.11), class)
 class(2)
 
+
+# lists can contain different classes of object
+
+list_1 <- list(TRUE, "A", 1)
+list_1
+sapply(list_1, class)
+
+
+list_2 <- list(
+  location = "icipe",
+  temperature_degrees_c = 25,
+  students = c("Cindy", "Dorcas", "Chelsea"),
+  daytime = TRUE
+)
+
+list_2
+
 # missing data is handled by NA
 NA
 
@@ -144,23 +152,88 @@ summary.data.frame
 
 ###############################################
 #######
-####### Part 1: The basics
+####### Part 2: The basics beyond base
 #######
 ###############################################
 
+# the extensible nature of R means there is (free!) software written
+# to help you do virtually anything
+# this can be functions, code in a paper, or packages
 
-# has lots of data object, let's look at them
-data()
+# e.g. tibble is an improvement on data.frame
 
-# try entering some into your console
+install.packages("tibble")
+library(tibble)
+
 InsectSprays
+class(InsectSprays)
 
-mtcars
+insect_sprays <- as_tibble(InsectSprays)
 
-ChickWeight
-
-
-# data.frame is R's main
+insect_sprays
 
 
+# the pipe operator |> allows for chains of stuff operations
+# and is generally makes for more readable code
+InsectSprays |>
+  as_tibble()
 
+
+# install.packages("tidyverse")
+library(tidyverse)
+
+diamonds
+
+# we want to know the mean and sd of the per-carat price
+# of diamonds for each combination of cut and color
+# and show them all in order from worst to best quality
+
+
+# this is how to do it with no pipes using tidyverse
+print(
+  arrange(
+    summarise(
+      group_by(
+        mutate(
+          diamonds,
+          dollars_per_carat = price / carat
+        ),
+        cut,
+        color
+      ),
+      avg_per_carat = mean(dollars_per_carat),
+      sd_per_carat = sd(dollars_per_carat),
+      .groups = "drop"
+    ),
+    cut,
+    desc(color)
+  ),
+  n = 35
+)
+
+# this is the same code but written with a piped workflow:
+diamonds |>
+  mutate(
+    dollars_per_carat = price / carat
+  ) |>
+  group_by(cut, color) |>
+  summarise(
+    avg_per_carat = mean(dollars_per_carat),
+    sd_per_carat = sd(dollars_per_carat),
+    .groups = "drop"
+  ) |>
+  arrange(
+    cut, desc(color)
+  ) |>
+  print(
+    n = 35
+  )
+
+# exercise: live code the above in base R
+
+
+# pipes are helpful and make working clearer!
+
+
+
+# indexing and $ referring
