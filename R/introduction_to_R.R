@@ -289,3 +289,107 @@ list_2
 list_2$team
 list_2[[3]]
 list_2[[3]][[2]]
+
+
+###############################################
+#######
+####### Part 3: Bringing in data
+#######
+###############################################
+
+# reading in as a csv is easiest
+raw_data_1 <- read.csv(
+  file = "data/example_vector_survey_data_20230601.csv"
+)
+
+raw_data_1
+
+class(raw_data_1)
+
+head()
+
+View(raw_data_1)
+
+library(readr)
+raw_data_2 <- read_csv(
+  file = "data/example_vector_survey_data_20230601.csv"
+)
+
+raw_data_2
+
+glimpse(raw_data_2)
+
+#install.packages("readxl")
+library(readxl)
+
+raw_data_3 <- read_excel(
+  path = "data/FIELD DATA EXAMPLE 2023 gerry and marianne villages.xlsx",
+  sheet = "vill_gerry"
+)
+
+raw_data_3
+
+raw_data_3 |>
+  print(n = 99)
+
+
+###############################################
+#######
+####### Part 4: doing things with data
+#######
+###############################################
+
+
+table(raw_data_2$species, raw_data_2$count)
+
+# Let's interrogate the results of this function
+tapply(
+  X = raw_data_2$count,
+  INDEX = raw_data_2$species,
+  fun = mean
+)
+
+# hide the answer below
+#
+#
+#
+#
+#
+#
+
+
+tapply(
+  X = raw_data_2$count,
+  INDEX = raw_data_2$species,
+  FUN = mean
+)
+
+
+iris3
+
+apply(
+  X = iris3,
+  MARGIN = c(2,3),
+  FUN = mean
+)
+
+
+model_1 <- glm(
+  formula = count ~ species + village + method,
+  data = raw_data_2,
+  family = poisson
+)
+
+model_1
+
+summary(model_1)
+
+plot(model_1)
+
+plot(raw_data_2$longitude_wgs84, raw_data_2$count)
+
+plot(
+  x = iris$Sepal.Length,
+  y = iris$Sepal.Width,
+  col = iris$Species
+)
