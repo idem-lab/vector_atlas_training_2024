@@ -1,6 +1,5 @@
 # Introduction to R
 
-
 ###############################################
 #######
 ####### Part 1: The basics
@@ -38,9 +37,9 @@ new_object * 3
 
 # objects can be as simple as a number or much more complicated in structure
 
-mtcars
+mtcars # this is one of R's built-in dummy datasets
 
-library(tidyverse)
+library(tidyverse) # <- tidyverse is a package. Packages are contributed by R users and contain defined functions that may offer considerable convenience.
 
 mtcars |>
   mutate(
@@ -114,6 +113,9 @@ sum(vec_4, na.rm = TRUE)
 # we have already used some functions above:
 # sapply, class, is.vector, etc.
 
+# the most simple function is c()
+c(4, 5, "a toothbrush") # can you describe what it does?
+
 # we can also write our own functions
 
 add_and_divide <- function(x, y, z){
@@ -144,12 +146,12 @@ summary.data.frame
 
 ###############################################
 #######
-####### Part 1: The basics
+####### Part 2: data frames in R
 #######
 ###############################################
 
 
-# has lots of data object, let's look at them
+# has lots of data objects, let's look at them
 data()
 
 # try entering some into your console
@@ -159,8 +161,19 @@ mtcars
 
 ChickWeight
 
+# the data.frame function is R's base object class for handling data frames
 
-# data.frame is R's main
+my_df <- data.frame()
+
+class(my_df)
+
+a_df <- read.csv(file="hit_tab_after_typing.csv") # find a local file
+
+# what class is that object?
+
+
+
+
 
 
 
