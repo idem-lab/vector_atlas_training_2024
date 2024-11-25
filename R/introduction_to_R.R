@@ -118,6 +118,20 @@ sum(vec_4)
 
 sum(vec_4, na.rm = TRUE)
 
+####################
+# excercise 1
+
+# make your own objects
+# try:
+# a vector
+# a list
+
+# if that's easy enough make:
+# a matrix
+# a data frame
+
+
+
 # R uses functions to do most of the work
 # we have already used some functions above:
 # sapply, class, is.vector, etc.
@@ -147,6 +161,12 @@ add_and_divide
 summary.data.frame
 
 
+###############
+# exercise 2
+# make your own functions
+# object_name <- function(things){
+#   function actions
+# }
 
 
 
@@ -162,7 +182,7 @@ summary.data.frame
 
 # e.g. tibble is an improvement on data.frame
 
-install.packages("tibble")
+#install.packages("tibble")
 library(tibble)
 
 InsectSprays
@@ -189,7 +209,7 @@ diamonds
 # and show them all in order from worst to best quality
 
 
-# this is how to do it with no pipes using tidyverse
+# this is how to do it with no pipes using tidyverse functions
 print(
   arrange(
     summarise(
@@ -231,10 +251,15 @@ diamonds |>
 
 # pipes are helpful and make working clearer!
 
-# exercise: live code the above in base R
+################ exercise for demonstrator:
+#live code the above in base R
 
 
 ## Indexing and accessing parts of objects
+mtcars
+
+mtcars |>
+  filter(cyl == 4)
 
 mt <- mtcars |>
   mutate(
@@ -290,6 +315,12 @@ list_2$team
 list_2[[3]]
 list_2[[3]][[2]]
 
+############## exercise 3
+# explore and manipulate data
+# R has a lot of inbuilt data objects to learn with
+data()
+# look at some of these objects and try to
+
 
 ###############################################
 #######
@@ -331,6 +362,11 @@ raw_data_3
 
 raw_data_3 |>
   print(n = 99)
+
+############ exercise:
+# read in your own data
+# read_csv
+# read_excel
 
 
 ###############################################
@@ -393,3 +429,31 @@ plot(
   y = iris$Sepal.Width,
   col = iris$Species
 )
+
+wide_data <- raw_data_2 |>
+  pivot_wider(
+    names_from = species,
+    values_from = count
+  )
+
+wide_data
+
+long_data <- wide_data |>
+  pivot_longer(
+    cols = c(gambiae, rufipes, pharoensis, coustani, funestus),
+    names_to = "species",
+    values_to = "count"
+  )
+
+long_data
+
+
+######### exercise:
+# try applying some of these functions to some of the R data
+# or your own data
+
+
+
+
+
+#####
