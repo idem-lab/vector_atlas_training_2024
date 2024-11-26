@@ -1,6 +1,5 @@
 # Introduction to R
 
-
 ###############################################
 #######
 ####### Part 1: The basics and base
@@ -135,6 +134,9 @@ sum(vec_4, na.rm = TRUE)
 # R uses functions to do most of the work
 # we have already used some functions above:
 # sapply, class, is.vector, etc.
+
+# the most simple function is c()
+c(4, 5, "a toothbrush") # can you describe what it does?
 
 # we can also write our own functions
 
@@ -451,6 +453,18 @@ long_data
 ######### exercise:
 # try applying some of these functions to some of the R data
 # or your own data
+
+# the data.frame function is R's base object class for handling data frames
+
+my_df <- data.frame()
+
+class(my_df)
+
+a_df <- read.csv(file="hit_tab_after_typing.csv") # find a local file
+
+# what class is that object?
+
+
 
 
 
