@@ -7,7 +7,7 @@
 ###############################################
 
 # let's bring back a non-spatial dataset to plot
-library(readr)
+library(tidyverse)
 
 raw_data_2 <- read_csv(
   file = "data/example_vector_survey_data_20230601.csv"
@@ -19,7 +19,9 @@ plot(
   x = raw_data_2$count
 )
 
-hist(x = raw_data_2$count, breaks=20) # histogram
+hist(x = raw_data_2$count) # histogram
+hist(x = raw_data_2$count, breaks = 20)
+hist(x = raw_data_2$count, breaks = 100)
 
 plot(
   x = factor(raw_data_2$species),
@@ -41,7 +43,7 @@ plot(
 boxplot(
   count ~ species,
   data = raw_data_2,
-  las = 1,
+  las = 1
 )
 
 # however, we are going to suggest the ggplot2 package
@@ -53,7 +55,10 @@ ggplot(data = raw_data_2)
 
 ggplot(data = raw_data_2) +
   geom_boxplot(
-    aes(species, count) # aes is for aesthetic
+    aes(
+      x = species,
+      y = count
+    ) # aes is for aesthetic
   )
 
 # default outputs often attractive
@@ -65,8 +70,16 @@ ggplot(data = raw_data_2) +
 
 # do you remember the pipe (%>%)?
 
-ggplot(data = raw_data_2) +
-  geom_boxplot(aes(species, count)) +
+ggplot(
+  data = raw_data_2 |>
+    filter(count != 0)
+) +
+  geom_boxplot(
+    aes(
+      x = species,
+      y = count
+    )
+  ) +
   facet_grid(village~.) +
   scale_y_log10()
 
@@ -89,11 +102,31 @@ ggplot(data = raw_data_2) +
     aes(species, count)
   ) +
   facet_grid( # introduce another factor to subdivide data
-    village~method
+    village ~ method
   ) +
   scale_y_log10()
 
-# as
+#install.packages('ggthemes', dependencies = TRUE)
+library(ggthemes)
+
+ggplot(
+  data = raw_data_2 |>
+    mutate(date = as.factor(date_yyyymmdd)) |>
+    filter(method == "cdc_light_trap")
+) +
+  geom_col(
+    aes(
+      x = species,
+      y = sqrt(count),
+      fill = date
+    ),
+    position = "dodge"
+  ) +
+  facet_grid( # introduce another factor to subdivide data
+    village ~.
+  ) +
+  scale_fill_excel_new() +
+  theme_excel()
 
 
 ###############################################
