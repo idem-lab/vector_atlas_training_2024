@@ -101,6 +101,8 @@ crs(v2)
 crs(v2) <- crs(r2)
 crs(v2)
 
+# projections ?!?!?!?!?
+# https://omniatlas.com/blogs/stray-maps/football-projections/
 
 
 
