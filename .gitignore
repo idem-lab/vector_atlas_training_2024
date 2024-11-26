@@ -4,4 +4,4 @@
 .Ruserdata
 *.DS_Store
 
-save_this_plot.png
+*.png
