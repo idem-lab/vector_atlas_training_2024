@@ -2,7 +2,7 @@
 
 ###############################################
 #######
-####### Part 1: The basics
+####### Part 1: The basics and base
 #######
 ###############################################
 
@@ -37,17 +37,8 @@ new_object * 3
 
 # objects can be as simple as a number or much more complicated in structure
 
-mtcars # this is one of R's built-in dummy datasets
-
-library(tidyverse) # <- tidyverse is a package. Packages are contributed by R users and contain defined functions that may offer considerable convenience.
-
-mtcars |>
-  mutate(
-    model = rownames(mtcars),
-    xy = vs + am
-  ) |>
-  nest(data = c(xy, gear, model))
-
+mtcars
+LakeHuron
 
 # Objects can have a variety of structures and "classes"
 
@@ -100,6 +91,23 @@ class(5.11)
 sapply(c(2:4, 5.11), class)
 class(2)
 
+
+# lists can contain different classes of object
+
+list_1 <- list(TRUE, "A", 1)
+list_1
+sapply(list_1, class)
+
+
+list_2 <- list(
+  location = "icipe",
+  temperature_degrees_c = 25,
+  team = c("Lorna", "Dorcas", "Cindy"),
+  daytime = TRUE
+)
+
+list_2
+
 # missing data is handled by NA
 NA
 
@@ -108,6 +116,20 @@ vec_4 <- c(1, NA, 3, NA, 1)
 sum(vec_4)
 
 sum(vec_4, na.rm = TRUE)
+
+####################
+# excercise 1
+
+# make your own objects
+# try:
+# a vector
+# a list
+
+# if that's easy enough make:
+# a matrix
+# a data frame
+
+
 
 # R uses functions to do most of the work
 # we have already used some functions above:
@@ -141,25 +163,296 @@ add_and_divide
 summary.data.frame
 
 
+###############
+# exercise 2
+# make your own functions
+# object_name <- function(things){
+#   function actions
+# }
 
 
 
 ###############################################
 #######
-####### Part 2: data frames in R
+####### Part 2: The basics beyond base
 #######
 ###############################################
 
+# the extensible nature of R means there is (free!) software written
+# to help you do virtually anything
+# this can be functions, code in a paper, or packages
 
-# has lots of data objects, let's look at them
-data()
+# e.g. tibble is an improvement on data.frame
 
-# try entering some into your console
+#install.packages("tibble")
+library(tibble)
+
 InsectSprays
+class(InsectSprays)
 
+insect_sprays <- as_tibble(InsectSprays)
+
+insect_sprays
+
+
+# the pipe operator |> allows for chains of stuff operations
+# and is generally makes for more readable code
+InsectSprays |>
+  as_tibble()
+
+
+# install.packages("tidyverse")
+library(tidyverse)
+
+diamonds
+
+# we want to know the mean and sd of the per-carat price
+# of diamonds for each combination of cut and color
+# and show them all in order from worst to best quality
+
+
+# this is how to do it with no pipes using tidyverse functions
+print(
+  arrange(
+    summarise(
+      group_by(
+        mutate(
+          diamonds,
+          dollars_per_carat = price / carat
+        ),
+        cut,
+        color
+      ),
+      avg_per_carat = mean(dollars_per_carat),
+      sd_per_carat = sd(dollars_per_carat),
+      .groups = "drop"
+    ),
+    cut,
+    desc(color)
+  ),
+  n = 35
+)
+
+# this is the same code but written with a piped workflow:
+diamonds |>
+  mutate(
+    dollars_per_carat = price / carat
+  ) |>
+  group_by(cut, color) |>
+  summarise(
+    avg_per_carat = mean(dollars_per_carat),
+    sd_per_carat = sd(dollars_per_carat),
+    .groups = "drop"
+  ) |>
+  arrange(
+    cut, desc(color)
+  ) |>
+  print(
+    n = 35
+  )
+
+# pipes are helpful and make working clearer!
+
+################ exercise for demonstrator:
+#live code the above in base R
+
+
+## Indexing and accessing parts of objects
 mtcars
 
-ChickWeight
+mtcars |>
+  filter(cyl == 4)
+
+mt <- mtcars |>
+  mutate(
+    model = rownames(mtcars)
+  ) |>
+  as_tibble() |>
+  select(
+    cyl,
+    gear,
+    hp,
+    qsec,
+    model
+  ) |>
+  nest(
+    sub_table = c(
+      model,
+      qsec,
+      hp
+    )
+  )
+
+mt
+
+
+mt$cyl
+
+mt$sub_table
+
+# indexing is via row, column, and starts at 1
+
+mt[1,1]
+
+mt[1,]
+mt[,1]
+
+mtcars[2:3,4:5]
+
+# double brackets index list elements
+# data frames are a special type of list where each element has the same length
+mt[[1]]
+mt$cyl
+
+mt$sub_table[[1]]
+mt[[3]][[1]]
+mt[1,3]
+mt[1,3][[1]][[1]]
+
+mt[,"cyl"]
+
+list_2
+
+list_2$team
+list_2[[3]]
+list_2[[3]][[2]]
+
+############## exercise 3
+# explore and manipulate data
+# R has a lot of inbuilt data objects to learn with
+data()
+# look at some of these objects and try to
+
+
+###############################################
+#######
+####### Part 3: Bringing in data
+#######
+###############################################
+
+# reading in as a csv is easiest
+raw_data_1 <- read.csv(
+  file = "data/example_vector_survey_data_20230601.csv"
+)
+
+raw_data_1
+
+class(raw_data_1)
+
+head()
+
+View(raw_data_1)
+
+library(readr)
+raw_data_2 <- read_csv(
+  file = "data/example_vector_survey_data_20230601.csv"
+)
+
+raw_data_2
+
+glimpse(raw_data_2)
+
+#install.packages("readxl")
+library(readxl)
+
+raw_data_3 <- read_excel(
+  path = "data/FIELD DATA EXAMPLE 2023 gerry and marianne villages.xlsx",
+  sheet = "vill_gerry"
+)
+
+raw_data_3
+
+raw_data_3 |>
+  print(n = 99)
+
+############ exercise:
+# read in your own data
+# read_csv
+# read_excel
+
+
+###############################################
+#######
+####### Part 4: doing things with data
+#######
+###############################################
+
+
+table(raw_data_2$species, raw_data_2$count)
+
+# Let's interrogate the results of this function
+tapply(
+  X = raw_data_2$count,
+  INDEX = raw_data_2$species,
+  fun = mean
+)
+
+# hide the answer below
+#
+#
+#
+#
+#
+#
+
+
+tapply(
+  X = raw_data_2$count,
+  INDEX = raw_data_2$species,
+  FUN = mean
+)
+
+
+iris3
+
+apply(
+  X = iris3,
+  MARGIN = c(2,3),
+  FUN = mean
+)
+
+
+model_1 <- glm(
+  formula = count ~ species + village + method,
+  data = raw_data_2,
+  family = poisson
+)
+
+model_1
+
+summary(model_1)
+
+plot(model_1)
+
+plot(raw_data_2$longitude_wgs84, raw_data_2$count)
+
+plot(
+  x = iris$Sepal.Length,
+  y = iris$Sepal.Width,
+  col = iris$Species
+)
+
+wide_data <- raw_data_2 |>
+  pivot_wider(
+    names_from = species,
+    values_from = count
+  )
+
+wide_data
+
+long_data <- wide_data |>
+  pivot_longer(
+    cols = c(gambiae, rufipes, pharoensis, coustani, funestus),
+    names_to = "species",
+    values_to = "count"
+  )
+
+long_data
+
+
+######### exercise:
+# try applying some of these functions to some of the R data
+# or your own data
 
 # the data.frame function is R's base object class for handling data frames
 
@@ -177,3 +470,4 @@ a_df <- read.csv(file="hit_tab_after_typing.csv") # find a local file
 
 
 
+#####
