@@ -60,6 +60,17 @@ bc_kenya <- mask(
   mask = kenya_mask
 )
 
+# make a low resolution version (to deal with bandwidth issues)
+bc_kenya_lores <- aggregate(bc_kenya,
+                            fact = 5,
+                            fun = "mean",
+                            na.rm = TRUE)
+
+# change up the names
+old_names <- names(bc_kenya_lores)
+new_names <- str_remove(old_names, "wc2.1_30s_")
+names(bc_kenya_lores) <- new_names
+
 # process travel data
 # this is a very large raster, we speed up the operation by cropping then masking
 # try looking at the result of only cropping to understand why both steps are needed
@@ -104,6 +115,12 @@ terra::writeRaster(
 terra::writeRaster(
   x = bc_kenya,
   filename = "data/rasters/bc_kenya.tif",
+  overwrite = TRUE
+)
+
+terra::writeRaster(
+  x = bc_kenya_lores,
+  filename = "data/rasters/bc_kenya_lores.tif",
   overwrite = TRUE
 )
 
