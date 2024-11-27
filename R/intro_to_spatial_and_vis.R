@@ -224,6 +224,8 @@ plot(r2[[c("wc2.1_30s_bio_1", "wc2.1_30s_bio_2")]])
 
 
 t2 <- read_csv("data/example_vector_survey_data_20230601.csv")
+t2 <- raw_data_2
+
 
 t2
 
@@ -257,7 +259,7 @@ library(geodata)
 kenya_admin <- gadm(
   country = "KEN",
   level = 1,
-  path = "data/gadm",
+  path = "gadm",
   resolution = 2
 )
 
@@ -285,6 +287,8 @@ library(tidyterra)
 # get just the turkana county
 turkana <- kenya_admin |>
   filter(NAME_1 == "Turkana")
+
+turkana
 
 # extract (mask) the bioclim data only to turkana
 bioclim_turkana <- mask(
@@ -335,6 +339,14 @@ bioclim_turkana_piped <- bioclim_kenya |>
 bioclim_turkana_piped
 plot(bioclim_turkana_piped[[1]])
 
+combined_bc_turk <- c(
+  bioclim_turkana_piped[[1]],
+  bioclim_turkana_cropped[[1]]
+)
+
+plot(combined_bc_turk)
+
+
 
 bioclim_turkana_low_resolution <- aggregate(
   bioclim_turkana_piped[[1]],
@@ -359,7 +371,7 @@ ext(bioclim_turkana_piped)
 plot(r1)
 points(v1, col = "deeppink", cex = 3)
 
-extract(
+terra::extract(
   x = r1,
   y = v1
 )
@@ -512,4 +524,5 @@ ggplot() +
     )
   )
 
-
+plot(temp_seasonality_turkana)
+points(survey_data_turkana)
