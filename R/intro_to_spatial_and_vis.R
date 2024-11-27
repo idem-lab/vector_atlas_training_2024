@@ -1,5 +1,10 @@
 # Spatial data and visualisation in R
 
+
+install.packages("terra")
+install.packages("geodata")
+install.packages("tidyterra")
+
 ###############################################
 #######
 ####### Part 1: Visualisation and ggplot
@@ -220,6 +225,7 @@ v2
 crs(v2)
 
 
+
 ###############################################
 #######
 ####### Part 4: Manipulating Spatial Data
@@ -232,7 +238,31 @@ crs(v2)
 # projections ?!?!?!?!?
 # https://omniatlas.com/blogs/stray-maps/football-projections/
 
+# install.packages("geodata")
+library(geodata)
 
+kenya_admin <- gadm(
+  country = "KEN",
+  level = 1,
+  path = "data/gadm",
+  resolution = 2
+)
+
+kenya_admin
+
+plot(kenya_admin)
+
+bioclim_kenya <- r2
+
+names_bioclim_old <- names(bioclim_kenya)
+better_names <- sub(
+
+)
+
+library(tidyterra)
+
+turkana <- kenya_admin |>
+  filter(NAME_1 == "Turkana")
 
 
 
