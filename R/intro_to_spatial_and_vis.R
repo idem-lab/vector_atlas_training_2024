@@ -354,6 +354,16 @@ plot(
 ext(bioclim_turkana_low_resolution)
 ext(bioclim_turkana_piped)
 
+
+# extract values from raster
+plot(r1)
+points(v1, col = "deeppink", cex = 3)
+
+extract(
+  x = r1,
+  y = v1
+)
+
 ###############################################
 #######
 ####### Part 5: Visualising Spatial Data
@@ -451,9 +461,55 @@ ggplot() +
     title = "Kenya Annual Mean Temperature",
     caption = "County boundaries outlines in grey"
   ) +
-  geom_spatvector(,
+  geom_spatvector(
     data = kenya_admin,
     fill = "transparent",
     col = "grey40"
   )
+
+
+# a different plot
+
+temp_seasonality_turkana <- bioclim_turkana_cropped$bio_3
+
+survey_data_turkana <- tribble(
+  ~lon, ~lat, ~species,
+  34.2, 4.1, "arabiensis",
+  35.1, 4.2, "arabiensis",
+  34.8, 3.8, "arabiensis",
+  35.7, 2.9, "arabiensis",
+  36.2, 1.9, "arabiensis",
+  35.9, 1.8, "gambiae",
+  36.3, 2.5, "gambiae",
+  36.1, 1.5, "gambiae",
+  36.4, 1.2, "gambiae",
+) |>
+  vect()
+
+crs(survey_data_turkana) <- crs(temp_seasonality_turkana)
+
+ggplot() +
+  geom_spatraster(
+    data = temp_seasonality_turkana
+  ) +
+  scale_fill_viridis_c(
+    option = "G",
+    na.value = "white",
+    guide = guide_colorbar(title = "Temperature\nseasonality")
+  ) +
+  theme_void() +
+  geom_spatvector(
+    data = survey_data_turkana,
+    fill = "transparent",
+    aes(
+      col = species
+    )
+  ) +
+  scale_color_manual(
+    values = c(
+      "gold",
+      "firebrick"
+    )
+  )
+
 
