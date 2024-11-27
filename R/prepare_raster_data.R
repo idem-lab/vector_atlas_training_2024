@@ -156,3 +156,11 @@ terra::writeRaster(
 # 2, 7, + 1
 # 3, 4, -1
 
+
+bc_kenya_123 <- bioclim_kenya[[1:3]]
+writeRaster(
+  bc_kenya_123,
+  filename = "data/rasters/bc_kenya_123.tif"
+)
+
+
