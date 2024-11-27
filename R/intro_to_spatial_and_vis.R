@@ -1,9 +1,142 @@
 # Spatial data and visualisation in R
 
 
+install.packages("terra")
+install.packages("geodata")
+install.packages("tidyterra")
+
 ###############################################
 #######
-####### Part 1: Basic Rasters and Vectors
+####### Part 1: Visualisation and ggplot
+#######
+###############################################
+
+# let's bring back a non-spatial dataset to plot
+library(tidyverse)
+
+raw_data_2 <- read_csv(
+  file = "data/example_vector_survey_data_20230601.csv"
+)
+
+# you already met the base plotting function plot()
+
+plot(
+  x = raw_data_2$count
+)
+
+hist(x = raw_data_2$count) # histogram
+hist(x = raw_data_2$count, breaks = 20)
+hist(x = raw_data_2$count, breaks = 100)
+
+plot(
+  x = factor(raw_data_2$species),
+  y = raw_data_2$count
+)
+
+# you can use model-like expression
+plot(raw_data_2$count~factor(raw_data_2$species))
+
+# infinitely customisable...
+plot(
+  x = factor(raw_data_2$species),
+  y = raw_data_2$count,
+  xlab = "Species",
+  ylab = "Abundance",
+  las = 1
+)
+
+boxplot(
+  count ~ species,
+  data = raw_data_2,
+  las = 1
+)
+
+# however, we are going to suggest the ggplot2 package
+library(ggplot2)
+
+ggplot()
+
+ggplot(data = raw_data_2)
+
+ggplot(data = raw_data_2) +
+  geom_boxplot(
+    aes(
+      x = species,
+      y = count
+    ) # aes is for aesthetic
+  )
+
+# default outputs often attractive
+
+ggplot(data = raw_data_2) +
+  geom_boxplot(aes(species, count)) +
+  facet_grid(village~.) +
+  scale_y_log10()
+
+# do you remember the pipe (%>%)?
+
+ggplot(
+  data = raw_data_2 |>
+    filter(count != 0)
+) +
+  geom_boxplot(
+    aes(
+      x = species,
+      y = count
+    )
+  ) +
+  facet_grid(village~.) +
+  scale_y_log10()
+
+my_plot <- ggplot(data = raw_data_2) +
+  geom_boxplot(
+    aes(species, count)
+  ) +
+  facet_grid(village~method) +
+  scale_y_log10()
+
+ggsave(my_plot, filename = "save_this_plot.png")
+
+
+# ggplot is particularly good for easy layering and
+ggplot(data = raw_data_2) +
+  geom_boxplot(
+    aes(species, count)
+  ) +
+  geom_jitter( # new 'geom' or layer
+    aes(species, count)
+  ) +
+  facet_grid( # introduce another factor to subdivide data
+    village ~ method
+  ) +
+  scale_y_log10()
+
+#install.packages('ggthemes', dependencies = TRUE)
+library(ggthemes)
+
+ggplot(
+  data = raw_data_2 |>
+    mutate(date = as.factor(date_yyyymmdd)) |>
+    filter(method == "cdc_light_trap")
+) +
+  geom_col(
+    aes(
+      x = species,
+      y = sqrt(count),
+      fill = date
+    ),
+    position = "dodge"
+  ) +
+  facet_grid( # introduce another factor to subdivide data
+    village ~.
+  ) +
+  scale_fill_excel_new() +
+  theme_excel()
+
+
+###############################################
+#######
+####### Part 2: Basic Rasters and Vectors
 #######
 ###############################################
 
@@ -54,7 +187,7 @@ points(v1, col = "deeppink", cex = 3)
 
 ###############################################
 #######
-####### Part 2: Reading in Rasters and Vectors
+####### Part 3: Reading in Rasters and Vectors
 #######
 ###############################################
 
@@ -92,9 +225,10 @@ v2
 crs(v2)
 
 
+
 ###############################################
 #######
-####### Part 3: Manipulating Spatial Data
+####### Part 4: Manipulating Spatial Data
 #######
 ###############################################
 
@@ -104,103 +238,34 @@ crs(v2)
 # projections ?!?!?!?!?
 # https://omniatlas.com/blogs/stray-maps/football-projections/
 
+# install.packages("geodata")
+library(geodata)
 
-
-
-###############################################
-#######
-####### Part 4: Visualisation with ggplot
-#######
-###############################################
-
-# let's bring back a non-spatial dataset to plot
-library(readr)
-
-raw_data_2 <- read_csv(
-  file = "data/example_vector_survey_data_20230601.csv"
+kenya_admin <- gadm(
+  country = "KEN",
+  level = 1,
+  path = "data/gadm",
+  resolution = 2
 )
 
-# you already met the base plotting function plot()
+kenya_admin
 
-plot(
-  x = raw_data_2$count
+plot(kenya_admin)
+
+bioclim_kenya <- r2
+
+names_bioclim_old <- names(bioclim_kenya)
+better_names <- sub(
+
 )
 
-hist(x = raw_data_2$count, breaks=20) # histogram
+library(tidyterra)
 
-plot(
-  x = factor(raw_data_2$species),
-  y = raw_data_2$count
-  )
-
-# you can use model-like expression
-plot(raw_data_2$count~factor(raw_data_2$species))
-
-# infinitely customisable...
-plot(
-  x = factor(raw_data_2$species),
-  y = raw_data_2$count,
-  xlab = "Species",
-  ylab = "Abundance",
-  las = 1
-)
-
-boxplot(
-  count ~ species,
-  data = raw_data_2,
-  las = 1,
-  )
-
-# however, we are going to suggest the ggplot2 package
-library(ggplot2)
-
-ggplot()
-
-ggplot(data = raw_data_2)
-
-ggplot(data = raw_data_2) +
-  geom_boxplot(
-    aes(species, count) # aes is for aesthetic
-    )
-
-# default outputs often attractive
-
-ggplot(data = raw_data_2) +
-  geom_boxplot(aes(species, count)) +
-  facet_grid(village~.) +
-  scale_y_log10()
-
-# do you remember the pipe (%>%)?
-
-ggplot(data = raw_data_2) +
-  geom_boxplot(aes(species, count)) +
-  facet_grid(village~.) +
-  scale_y_log10()
-
-my_plot <- ggplot(data = raw_data_2) +
-  geom_boxplot(
-    aes(species, count)
-    ) +
-  facet_grid(village~method) +
-  scale_y_log10()
-
-ggsave(my_plot, filename = "save_this_plot.png")
+turkana <- kenya_admin |>
+  filter(NAME_1 == "Turkana")
 
 
-# ggplot is particularly good for easy layering and
-ggplot(data = raw_data_2) +
-  geom_boxplot(
-    aes(species, count)
-    ) +
-  geom_jitter( # new 'geom' or layer
-    aes(species, count)
-    ) +
-  facet_grid( # introduce another factor to subdivide data
-    village~method
-    ) +
-  scale_y_log10()
 
-# as
 
 
 ###############################################
