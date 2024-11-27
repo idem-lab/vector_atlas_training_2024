@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 
 1: [`R/introduction_to_R.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/introduction_to_R.R)
 
+2: [`intro_to_spatial_and_vis.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/intro_to_spatial_and_vis.R)
 
 ##### Supplementary data processing and generation scripts
 i. [`R/prepare_raster_data.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/prepare_raster_data.R)
