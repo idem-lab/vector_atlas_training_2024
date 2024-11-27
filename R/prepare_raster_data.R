@@ -50,7 +50,7 @@ bioclim_kenya <- worldclim_country(
 # generate mask of our area of interest so we can use it to process other data into this shape
 kenya_mask <- bioclim_kenya[[1]] %>%
   mask(kenya_vector) * 0 + 1
-
+names(kenya_mask) <- "Kenya"
 plot(kenya_mask)
 
 
@@ -97,17 +97,20 @@ plot(rescale_travel)
 
 terra::writeRaster(
   x = kenya_mask,
-  filename = "data/grids/kenya_mask.tif"
+  filename = "data/rasters/kenya_mask.tif",
+  overwrite = TRUE
 )
 
 terra::writeRaster(
   x = bc_kenya,
-  filename = "data/grids/bc_kenya.tif"
+  filename = "data/rasters/bc_kenya.tif",
+  overwrite = TRUE
 )
 
 terra::writeRaster(
   x = rescale_travel,
-  filename = "data/grids/rescale_travel.tif"
+  filename = "data/rasters/rescale_travel.tif",
+  overwrite = TRUE
 )
 
 
