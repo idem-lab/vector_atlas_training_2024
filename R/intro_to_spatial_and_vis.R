@@ -50,6 +50,8 @@ plot(
   las = 1
 )
 
+# often has good decisions pre-programmed in
+
 boxplot(
   count ~ species,
   data = raw_data_2,
@@ -77,7 +79,7 @@ ggplot(data = raw_data_2) +
 ggplot(data = raw_data_2) +
   geom_boxplot(aes(species, count)) +
   facet_grid(village~.) +
-  scale_y_log10()
+  scale_y_sqrt()
 
 # do you remember the pipe (%>%)?
 
@@ -116,6 +118,8 @@ ggplot(data = raw_data_2) +
     village ~ method
   ) +
   scale_y_sqrt()
+
+
 
 #install.packages('ggthemes', dependencies = TRUE)
 library(ggthemes)
