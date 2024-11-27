@@ -1,9 +1,14 @@
 # Spatial data and visualisation in R
 
+# We need some packages - if the following lines fail, select and run the
+# commented out line to install the package.
+library(terra)
+# install.packages("terra")
+library(geodata)
+# install.packages("geodata")
+library(tidyterra)
+# install.packages("tidyterra")
 
-install.packages("terra")
-install.packages("geodata")
-install.packages("tidyterra")
 
 ###############################################
 #######
@@ -86,14 +91,14 @@ ggplot(
     )
   ) +
   facet_grid(village~.) +
-  scale_y_log10()
+  scale_y_sqrt()
 
 my_plot <- ggplot(data = raw_data_2) +
   geom_boxplot(
     aes(species, count)
   ) +
   facet_grid(village~method) +
-  scale_y_log10()
+  scale_y_sqrt()
 
 ggsave(my_plot, filename = "save_this_plot.png")
 
@@ -109,7 +114,7 @@ ggplot(data = raw_data_2) +
   facet_grid( # introduce another factor to subdivide data
     village ~ method
   ) +
-  scale_y_log10()
+  scale_y_sqrt()
 
 #install.packages('ggthemes', dependencies = TRUE)
 library(ggthemes)
