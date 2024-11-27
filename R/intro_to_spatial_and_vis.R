@@ -53,6 +53,7 @@ boxplot(
 
 # however, we are going to suggest the ggplot2 package
 library(ggplot2)
+# https://ggplot2.tidyverse.org
 
 ggplot()
 
@@ -155,6 +156,7 @@ m1 <- matrix(
 m1
 
 library(terra)
+# https://rspatial.org
 
 r1 <- rast(m1)
 r1
@@ -369,7 +371,7 @@ plot(
 
 # tidyterra gives ggplot utility to terra spatial data
 library(tidyterra)
-
+# https://dieghernan.github.io/tidyterra/index.html
 
 ggplot() +
   geom_spatraster(
