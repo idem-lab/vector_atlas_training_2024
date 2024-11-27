@@ -191,7 +191,7 @@ points(v1, col = "deeppink", cex = 3)
 #######
 ###############################################
 
-r2 <- rast("data/rasters/bc_kenya.tif")
+r2 <- rast("data/rasters/bc_kenya_123.tif")
 
 r2
 
@@ -232,6 +232,7 @@ crs(v2)
 #######
 ###############################################
 
+# v2 has no coordinate reference system - let's give it one
 crs(v2) <- crs(r2)
 crs(v2)
 
@@ -241,6 +242,7 @@ crs(v2)
 # install.packages("geodata")
 library(geodata)
 
+# let's download Kenya county boundaries
 kenya_admin <- gadm(
   country = "KEN",
   level = 1,
@@ -252,21 +254,94 @@ kenya_admin
 
 plot(kenya_admin)
 
+# give bioclimactic data clearer names
 bioclim_kenya <- r2
-
 names_bioclim_old <- names(bioclim_kenya)
-better_names <- sub(
 
+# remove the unnecessary
+better_names <- sub(
+  pattern = "wc2\\.1_30s_",
+  replacement = "",
+  names_bioclim_old
 )
+
+better_names
+
+names(bioclim_kenya) <- better_names
 
 library(tidyterra)
 
+# get just the turkana county
 turkana <- kenya_admin |>
   filter(NAME_1 == "Turkana")
 
+# extract (mask) the bioclim data only to turkana
+bioclim_turkana <- mask(
+  x = bioclim_kenya,
+  mask = turkana
+)
+
+bioclim_turkana
 
 
+plot(bioclim_turkana[[1]])
 
+# look at it side-by-side
+plot(c(bioclim_kenya[[1]], bioclim_turkana[[1]]))
+
+# show the admin boundary
+plot(c(bioclim_kenya[[1]], bioclim_turkana[[1]]))
+plot(turkana, add = TRUE)
+
+plot(bioclim_kenya[[1]])
+plot(turkana, add = TRUE)
+
+plot(bioclim_turkana[[1]])
+
+#look at extents
+ext(turkana)
+ext(bioclim_turkana)
+ext(bioclim_kenya)
+
+bioclim_turkana_cropped <- crop(
+  x = bioclim_turkana,
+  y = turkana
+)
+
+ext(bioclim_turkana_cropped)
+ext(bioclim_turkana)
+
+plot(bioclim_turkana_cropped[[1]])
+
+bioclim_turkana_piped <- bioclim_kenya |>
+  mask(
+    mask = turkana
+  ) |>
+  crop(
+    y = turkana
+  )
+
+bioclim_turkana_piped
+plot(bioclim_turkana_piped[[1]])
+
+
+bioclim_turkana_low_resolution <- aggregate(
+  bioclim_turkana_piped[[1]],
+  fact = 20,
+  fun = "mean"
+)
+
+plot(bioclim_turkana_low_resolution)
+
+plot(
+  c(
+    bioclim_turkana_piped[[1]],
+    bioclim_turkana_low_resolution
+  )
+)
+
+ext(bioclim_turkana_low_resolution)
+ext(bioclim_turkana_piped)
 
 ###############################################
 #######
@@ -274,5 +349,100 @@ turkana <- kenya_admin |>
 #######
 ###############################################
 
+# let's just work with one layer
+annual_mean_temp <- bioclim_kenya$bio_1
 
+plot(annual_mean_temp)
+
+
+# base plot gives lots of utiliy
+
+?plot
+
+plot(
+  annual_mean_temp,
+  col = rainbow(12),
+  grid = TRUE
+)
+
+
+
+# tidyterra gives ggplot utility to terra spatial data
+library(tidyterra)
+
+
+ggplot() +
+  geom_spatraster(
+    data = annual_mean_temp
+  )
+# still pretty ugly
+
+ggplot() +
+  geom_spatraster(
+    data = annual_mean_temp
+  ) +
+  scale_fill_viridis_c(
+    option = "D"
+  )
+
+
+ggplot() +
+  geom_spatraster(
+    data = annual_mean_temp
+  ) +
+  scale_fill_viridis_c(
+    option = "D",
+    na.value = "white"
+  )
+
+ggplot() +
+  geom_spatraster(
+    data = annual_mean_temp
+  ) +
+  scale_fill_viridis_c(
+    option = "B",
+    na.value = "white",
+    guide = guide_colorbar(title = "Degrees\nCelsius")
+  ) +
+  theme_void() +
+  labs(
+    title = "Kenya Annual Mean Temperature"
+  )
+
+ggplot() +
+  geom_spatraster(
+    data = annual_mean_temp
+  ) +
+  scale_fill_viridis_c(
+    option = "B",
+    na.value = "white",
+    guide = guide_colorbar(title = "Degrees\nCelsius")
+  ) +
+  theme_void() +
+  labs(
+    title = "Kenya Annual Mean Temperature"
+  ) +
+  geom_spatvector(
+    data = kenya_admin
+  )
+
+ggplot() +
+  geom_spatraster(
+    data = annual_mean_temp
+  ) +
+  scale_fill_viridis_c(
+    option = "B",
+    na.value = "white",
+    guide = guide_colorbar(title = "Degrees\nCelsius")
+  ) +
+  theme_void() +
+  labs(
+    title = "Kenya Annual Mean Temperature",
+    caption = "County boundaries outlines in grey"
+  ) +
+  geom_spatvector(,
+    data = kenya_admin,
+    fill = "transparent",
+    col = "grey40"
+  )
 
