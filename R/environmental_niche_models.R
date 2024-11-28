@@ -49,40 +49,25 @@ View(pa_data)
 # summarise the column types and values
 summary(pa_data)
 
-# That was easy
-
 # 2. Read in some environmental covariates for Kenya.
 
 # We'll use the 'rast' function from the terra package, to load the bioclim
 # covariate layers that describe the average climate of Kenya
-bioclim <- rast("data/rasters/bc_kenya.tif")
+bioclim <- rast("data/rasters/bc_kenya_lores.tif")
 
 # You can read more about these layers here:
 # https://www.worldclim.org/data/bioclim.html
 
-# The raster files list the source of the data (worldclim = wc), the version of
-# the product (2.1), the resolution (30 second = 30s), and the bioclim layer.
-# Let's remove the first three pieces of information to make it easier later
-old_names <- names(bioclim)
-old_names
-new_names <- str_remove(old_names, "wc2.1_30s_")
-new_names
-names(bioclim) <- new_names
+# NOTE: this is a lower-resolution version of the original Bioclim data, and
+# what Gerry used yesterday. We reduced the resolution to make the downloads
+# easier.
 
-# We will also read in a 'blank' raster for Kenya (1 for pixels inside Kenya,
-# and missing values for other cells), which will make it easier to plot data
-# and
-kenya <- rast("data/rasters/kenya_mask.tif")
-
-# we can do a quick plot to check
-plot(kenya)
-
-# lets plot the occurrence data over this
+# lets plot the occurrence data over the top of the first layer: annual mean
+# temperature
 ggplot() +
-  geom_spatraster(data = kenya) +
+  geom_spatraster(data = bioclim$bio_1) +
   scale_fill_gradient(
-    name = "Temperature\nrange (ΔC)",
-    low = grey(0.9),
+    low = grey(0.6),
     high = grey(0.9),
     na.value = "transparent",
     guide = "none") +
@@ -107,6 +92,8 @@ ggplot() +
 
 # What do you think of our amazing dataset for vector mapping?!
 
+# It's not ideal for mapping the distributions over all the climatic conditions
+# in Kenya is it? We'll discuss this later.
 
 # 3. Visualise the environmental covariates, and how much they vary across
 # Kenya.
@@ -142,6 +129,7 @@ ggplot() +
 # pattern, but where the average cell value is 0 and the variance is 1
 
 bioclim_scaled <- scale(bioclim)
+
 ggplot() +
   geom_spatraster(data = bioclim_scaled[[several_layers_to_plot]]) +
   facet_wrap(~lyr) +
@@ -167,10 +155,11 @@ occurrence_coordinates <- pa_data %>%
   select(x = longitude,
          y = latitude) %>%
   as.matrix()
+
 nrow(pa_data)
+nrow(occurrence_coordinates)
 
 head(occurrence_coordinates)
-nrow(occurrence_coordinates)
 
 # we'll use the scaled covariates, since it will be a little bit easier to
 # interpret the model coefficients
@@ -254,10 +243,10 @@ enm_model$coefficients
 
 # E.g. if you see:
 # (Intercept)       bio_9      bio_13
-# 0.5137810   2.7102873   0.5934065
+# 0.4052588   2.7023826   0.7165039
 
 # then we have the model:
-# p(Vector_present) = ilogit(0.5137810 + 2.7102873 * bio_9 + 0.5934065 * bio_13)
+# p(Vector_present) = ilogit(0.4052588 + 2.7023826 * bio_9 + 0.7165039 * bio_13)
 
 # You shouldn't need this, but in case you want to try something on your own, in
 # R the ilogit function is: plogis(). Or you can create your own like this:
@@ -309,13 +298,18 @@ ggplot() +
 # interpretable in terms of how much the model relies on each covariate to
 # explain spatial variation)
 
-enm_model$coefficients
+enm_model$coefficients[-1]
 
 # if you like p-values, you can get those too - but do you know how to interpret
 # them?
 summary(enm_model)
 
-# plot the fitted values versus the data
+# plot the fitted values versus the data. The original data (transparent dots)
+# are presence (1) and absence (0), but we can compare against the fitted values
+# of the proportion of sites with presence by aggregating those data over some
+# intervals (fitted values 0-0.25, 0.25-0.5, 0.5-0.75, 0.75-1, the vertical
+# lines) and calculate what proportion of records actually have presences in
+# those intervals. We plot these as the pink squares. They align quite well.
 bin_breaks <- seq(0, 1, length.out = 5)
 pa_data_with_covariates %>%
   mutate(
@@ -354,9 +348,10 @@ pa_data_with_covariates %>%
 # modelling), I suggest referring to this paper: Lawson et al.
 # https://doi.org/10.1111/2041-210X.12123 (see e.g. Table 2).
 
-# for now we will use MSE: 'mean squared error', which is in the cv package.
-# Smaller numbers of MSE indicate a better fit. However, we can't use the number
-# to tell us whether the fit is 'good enough'.
+# For now we will use MSE: 'mean squared error', which is implemented in the
+# mse() function, in the cv package. Smaller numbers of MSE indicate a better
+# fit. However, we can't use the number to tell us whether the fit is 'good
+# enough'.
 
 library(cv)
 
@@ -402,7 +397,15 @@ p_vector_present_complex <- predict(
   object = bioclim_scaled,
   model = enm_model_complex,
   type = "response")
-plot(p_vector_present_complex)
+
+ggplot() +
+  geom_spatraster(data = p_vector_present_complex) +
+  scale_fill_gradient(
+    name = "p(Vector_present)",
+    low = grey(0.9),
+    high = "blue",
+    na.value = "transparent") +
+  theme_minimal()
 
 # now we compute the internal validation metric
 mse_internal_complex <- mse(
@@ -413,20 +416,21 @@ mse_internal_complex <- mse(
 mse_internal_orig
 mse_internal_complex
 
+# the complex model has a better validation statistic (lower MSE), as expected
 
 # Let's see how well these two models do at predicting to new data. Since we
-# used all of our training data, we'll split it in two and re-fit the models
+# already used all of our data, we'll split it in two and re-fit the models to
+# half, and keep the remaining half for testing.
 
-# we'll *randomly* select half of the data for training, and use the rest
+# We'll *randomly* select half of the data for training, and use the rest
 # for testing.
-
 
 n_total <- nrow(pa_data_with_covariates)
 n_training <- round(n_total / 2)
 
 # sample some datapoints at random, making sure we will all get the same random
 # fraction
-set.seed(1)
+set.seed(12321)
 training_index <- sample.int(n_total, n_training, replace = FALSE)
 
 training_data <- pa_data_with_covariates[training_index, ]
@@ -434,11 +438,10 @@ testing_data <- pa_data_with_covariates[-training_index, ]
 
 nrow(training_data)
 head(training_data)
-summary(training_data)
+summary(training_data$present)
 
 nrow(testing_data)
-head(testing_data)
-summary(testing_data)
+summary(testing_data$present)
 
 # now we refit our two models
 enm_model_external <- glm(
@@ -449,13 +452,10 @@ enm_model_external <- glm(
   data = training_data)
 
 enm_model_complex_external <- glm(
-  # trick: we can re-use the formula from the earlier model
   formula = enm_model_complex$formula,
   family = binomial,
-  # amke sure we use the training data
   data = training_data)
-
-
+# more warnings about overfitting!
 
 # now we predict from these to with the testing data (we can't cheat by using
 # the fitted values this time, because we are comparing to a 'new' dataset)
@@ -467,7 +467,6 @@ enm_model_external_preds <- predict(enm_model_external,
 enm_model_complex_external_preds <- predict(enm_model_complex_external,
                                             newdata = testing_data,
                                             type = "response")
-# there are more warnings about the model being overfitted!
 
 # let's compute the external, or out-of-sample validation statistics, comparing
 # these predictions against the real outcomes in the testing data
@@ -485,27 +484,31 @@ mse_external_complex
 
 # In practice, it's normally a good idea to do this external validation lots of
 # times with different random samples, to make sure the result isn't just a
-# glitch, of the random training/test split we chose. This is called
+# glitch of the random training/test split we chose. This is called
 # cross-validation, and there are nice R packages to help with it (e.g. the cv
 # package)
 
 # cross-validation
 mse_cv_orig <- cv::cv(
-  # just give it the original model - it will re-fit it to the new datasets for us
+  # just give it the original model - it will re-fit to the new datasets for us
   model = enm_model,
   # give it the full dataset
   data = pa_data_with_covariates,
   # how many different 'folds' or replicates should we split into?
-  K = 5,
+  K = 10,
   # which metric should we use
-  criterion = mse)
+  criterion = mse,
+  # we'll make sure both models are evaluated with the same random partitions
+  seed = 123)
 
 # now for the overfitted model
 mse_cv_complex <- cv::cv(
   model = enm_model_complex,
   data = pa_data_with_covariates,
-  K = 5,
-  criterion = mse)
+  K = 10,
+  criterion = mse,
+  # we'll make sure both models are evaluated with the same random partitions
+  seed = 123)
 
 mse_cv_orig
 mse_cv_complex
