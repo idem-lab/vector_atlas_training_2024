@@ -14,6 +14,8 @@
 2:
 [`intro_to_spatial_and_vis.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/intro_to_spatial_and_vis.R)
 
+3:[`environmental_niche_models.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/environmental_niche_models.R)
+
 ##### Supplementary data processing and generation scripts
 
 1.  [`R/prepare_raster_data.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/prepare_raster_data.R)
