@@ -16,6 +16,9 @@
 
 3:[`environmental_niche_models.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/environmental_niche_models.R)
 
+4:
+[`spatial smoothing models.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/spatial%20smoothing%20models.R)
+
 ##### Supplementary data processing and generation scripts
 
 1.  [`R/prepare_raster_data.R`](https://github.com/idem-lab/vector_atlas_training_2024/blob/main/R/prepare_raster_data.R)
